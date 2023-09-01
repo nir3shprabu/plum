@@ -20,12 +20,12 @@ steps:
     id: Docker Push
   
     # Access the database configuration from Secret Manager
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-    - '-c'
-    - |
-      gcloud secrets versions access latest --secret=plum-config > /workspace/db_config.env
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   entrypoint: 'bash'
+  #   args:
+  #   - '-c'
+  #   - |
+  #     gcloud secrets versions access latest --secret=plum-config > /workspace/db_config.env
 
   # Deploy to Google Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -47,8 +47,8 @@ steps:
     - 'web'
     - '--add-cloudsql-instances'
     - 'my-kubernetes-project-393103:us-central1:plum-db'  # Replace with your Cloud SQL instance details
-    - '--env-vars-file'
-    - '/workspace/db_config.env'
+    - '--set-env-vars'
+    - 'DATABASE_URL=postgresql://postgres:comali@/plum-db?host=/cloudsql/my-kubernetes-project-393103:us-central1:plum-db'
 
 # This ensures the image is available in Cloud Build's cache for faster builds
 images:
