@@ -47,7 +47,7 @@ steps:
     - 'web'
     - '--add-cloudsql-instances'
     - 'my-kubernetes-project-393103:us-central1:plum-db'  # Replace with your Cloud SQL instance details
-    - '--set-env-vars-from-file'
+    - '--env-vars-file'
     - '/workspace/db_config.env'
 
 # This ensures the image is available in Cloud Build's cache for faster builds
