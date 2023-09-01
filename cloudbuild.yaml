@@ -35,6 +35,8 @@ steps:
     - '--allow-unauthenticated'  # Optional: remove if you want to require authentication
     - '--port'
     - '80'
+    - '--args'
+    - 'web'
 
 # This ensures the image is available in Cloud Build's cache for faster builds
 images:
