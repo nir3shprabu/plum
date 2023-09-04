@@ -1,13 +1,13 @@
 [plum]
-url = http://nireshprabu.online
+url = http://localhost
 
 [database]
-backend = PostgreSQL13 
-name = plum-instance
-user =  plum-user
-password = postgres
-host = 34.69.44.174
-port = 5432
+backend = sqlite3
+name = db.sqlite3
+user = 
+password =
+host =
+port =
 
 [main]
 from = admin@localhost
