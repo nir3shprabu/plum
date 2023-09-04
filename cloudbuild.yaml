@@ -48,7 +48,7 @@ steps:
     - '--add-cloudsql-instances'
     - 'my-kubernetes-project-393103:us-central1:plum-instance'  # Replace with your Cloud SQL instance details
     - '--set-env-vars'
-    - 'DATABASE_URL=postgresql://plum-user:postgres@/plum-instance?34.69.44.174=/cloudsql/my-kubernetes-project-393103:us-central1:plum-instance'
+    - 'DATABASE_URL=postgresql://plum-user:postgres@/plum-instance?35.232.48.241=/cloudsql/my-kubernetes-project-393103:us-central1:plum-instance'
 
 # This ensures the image is available in Cloud Build's cache for faster builds
 images:
