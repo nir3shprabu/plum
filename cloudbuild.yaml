@@ -28,22 +28,22 @@ steps:
       gcloud secrets versions access latest --secret=plum-database-config > /workspace/secrets.json
 
   # Deploy to Google Cloud Run
-    - name: 'gcr.io/cloud-builders/gcloud'
-      entrypoint: 'bash'
-      args:
-      - '-c'
-      - |
-        gcloud run deploy plum-service \
-        --image $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA \
-        --region us-central1 \
-        --platform managed \
-        --allow-unauthenticated  \
-        --set-env-vars=PLUM_DB_TYPE=$(jq -r .PLUM_DB_TYPE /workspace/secrets.json),\
-                        PLUM_DB_NAME=$(jq -r .PLUM_DB_NAME /workspace/secrets.json),\
-                        PLUM_DB_USER=$(jq -r .PLUM_DB_USER /workspace/secrets.json),\
-                        PLUM_DB_PASS=$(jq -r .PLUM_DB_PASS /workspace/secrets.json),\
-                        PLUM_DB_HOST=$(jq -r .PLUM_DB_HOST /workspace/secrets.json),\
-                        PLUM_DB_PORT=$(jq -r .PLUM_DB_PORT /workspace/secrets.json)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      gcloud run deploy plum-service \
+      --image $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA \
+      --region us-central1 \
+      --platform managed \
+      --allow-unauthenticated  \
+      --set-env-vars=PLUM_DB_TYPE=$(jq -r .PLUM_DB_TYPE /workspace/secrets.json),\
+                      PLUM_DB_NAME=$(jq -r .PLUM_DB_NAME /workspace/secrets.json),\
+                      PLUM_DB_USER=$(jq -r .PLUM_DB_USER /workspace/secrets.json),\
+                      PLUM_DB_PASS=$(jq -r .PLUM_DB_PASS /workspace/secrets.json),\
+                      PLUM_DB_HOST=$(jq -r .PLUM_DB_HOST /workspace/secrets.json),\
+                      PLUM_DB_PORT=$(jq -r .PLUM_DB_PORT /workspace/secrets.json)
   # - name: 'gcr.io/cloud-builders/gcloud'
   #   entrypoint: 'gcloud'
   #   args:
