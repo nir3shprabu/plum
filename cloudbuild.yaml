@@ -17,7 +17,6 @@ steps:
     args:
     - '-c'
     - |
-      apt-get update && apt-get install -y jq
       - push
       - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
     id: Docker Push
@@ -29,6 +28,20 @@ steps:
     - '-c'
     - |
       gcloud secrets versions access latest --secret=plum-database-config > /workspace/secrets.json
+  
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+    - '-c'
+    - |
+      PLUM_DB_TYPE=$(python fetch_secrets.py PLUM_DB_TYPE)
+      PLUM_DB_NAME=$(python fetch_secrets.py PLUM_DB_NAME)
+      PLUM_DB_USER=$(python fetch_secrets.py PLUM_DB_USER)
+      PLUM_DB_PASS=$(python fetch_secrets.py PLUM_DB_PASS)
+      PLUM_DB_HOST=$(python fetch_secrets.py PLUM_DB_HOST)
+      PLUM_DB_PORT=$(python fetch_secrets.py PLUM_DB_PORT)
+
+      DATABASE_URL="postgresql://$PLUM_DB_USER:$PLUM_DB_PASS@$PLUM_DB_HOST:$PLUM_DB_PORT/$PLUM_DB_NAME"
 
   # Deploy to Google Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -41,12 +54,8 @@ steps:
       --region us-central1 \
       --platform managed \
       --allow-unauthenticated  \
-      --set-env-vars=PLUM_DB_TYPE=$(jq -r .PLUM_DB_TYPE /workspace/secrets.json),\
-                      PLUM_DB_NAME=$(jq -r .PLUM_DB_NAME /workspace/secrets.json),\
-                      PLUM_DB_USER=$(jq -r .PLUM_DB_USER /workspace/secrets.json),\
-                      PLUM_DB_PASS=$(jq -r .PLUM_DB_PASS /workspace/secrets.json),\
-                      PLUM_DB_HOST=$(jq -r .PLUM_DB_HOST /workspace/secrets.json),\
-                      PLUM_DB_PORT=$(jq -r .PLUM_DB_PORT /workspace/secrets.json)
+      --set-env-vars=DATABASE_URL=$DATABASE_URL
+      
   # - name: 'gcr.io/cloud-builders/gcloud'
   #   entrypoint: 'gcloud'
   #   args:
