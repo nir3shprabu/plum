@@ -25,8 +25,8 @@ steps:
     args:
     - '-c'
     - |
-      gcloud secrets versions access latest --secret=plum-database-config > /workspace/database.env
-      source /workspace/database.env
+      gcloud secrets versions access latest --secret=plum-database-config > /workspace/secrets.json
+      DB_URL="$(jq -r .PLUM_DB_TYPE /workspace/secrets.json)://$(jq -r .PLUM_DB_USER /workspace/secrets.json):$(jq -r .PLUM_DB_PASS /workspace/secrets.json)@$(jq -r .PLUM_DB_HOST /workspace/secrets.json):$(jq -r .PLUM_DB_PORT /workspace/secrets.json)/$(jq -r .PLUM_DB_NAME /workspace/secrets.json)"
 
   # Deploy to Google Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -48,8 +48,7 @@ steps:
     - 'web'
     - '--add-cloudsql-instances'
     - 'my-kubernetes-project-393103:us-central1:plum-instance'  # Replace with your Cloud SQL instance details
-    - '--env-vars-file'
-    - '/workspace/database.env'
+    - '--set-env-vars=DATABASE_URL=$DB_URL'
 
 # This ensures the image is available in Cloud Build's cache for faster builds
 images:
