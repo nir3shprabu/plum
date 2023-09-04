@@ -26,29 +26,44 @@ steps:
     - '-c'
     - |
       gcloud secrets versions access latest --secret=plum-database-config > /workspace/secrets.json
-      DB_URL="$(jq -r .PLUM_DB_TYPE /workspace/secrets.json)://$(jq -r .PLUM_DB_USER /workspace/secrets.json):$(jq -r .PLUM_DB_PASS /workspace/secrets.json)@$(jq -r .PLUM_DB_HOST /workspace/secrets.json):$(jq -r .PLUM_DB_PORT /workspace/secrets.json)/$(jq -r .PLUM_DB_NAME /workspace/secrets.json)"
 
   # Deploy to Google Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'gcloud'
-    args:
-    - 'run'
-    - 'deploy'
-    - 'plum-service'  # Replace with the desired Cloud Run service name
-    - '--image'
-    - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA' 
-    - '--region'
-    - 'us-central1'  # Replace with your desired region
-    - '--platform'
-    - 'managed'
-    - '--allow-unauthenticated'  # Optional: remove if you want to require authentication
-    - '--port'
-    - '80'
-    - '--args'
-    - 'web'
-    - '--add-cloudsql-instances'
-    - 'my-kubernetes-project-393103:us-central1:plum-instance'  # Replace with your Cloud SQL instance details
-    - '--set-env-vars=DATABASE_URL=$DB_URL'
+    - name: 'gcr.io/cloud-builders/gcloud'
+      entrypoint: 'bash'
+      args:
+      - '-c'
+      - |
+        gcloud run deploy plum-service \
+        --image $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA \
+        --region us-central1 \
+        --platform managed \
+        --allow-unauthenticated  \
+        --set-env-vars=PLUM_DB_TYPE=$(jq -r .PLUM_DB_TYPE /workspace/secrets.json),\
+                        PLUM_DB_NAME=$(jq -r .PLUM_DB_NAME /workspace/secrets.json),\
+                        PLUM_DB_USER=$(jq -r .PLUM_DB_USER /workspace/secrets.json),\
+                        PLUM_DB_PASS=$(jq -r .PLUM_DB_PASS /workspace/secrets.json),\
+                        PLUM_DB_HOST=$(jq -r .PLUM_DB_HOST /workspace/secrets.json),\
+                        PLUM_DB_PORT=$(jq -r .PLUM_DB_PORT /workspace/secrets.json)
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   entrypoint: 'gcloud'
+  #   args:
+  #   - 'run'
+  #   - 'deploy'
+  #   - 'plum-service'  # Replace with the desired Cloud Run service name
+  #   - '--image'
+  #   - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA' 
+  #   - '--region'
+  #   - 'us-central1'  # Replace with your desired region
+  #   - '--platform'
+  #   - 'managed'
+  #   - '--allow-unauthenticated'  # Optional: remove if you want to require authentication
+  #   - '--port'
+  #   - '80'
+  #   - '--args'
+  #   - 'web'
+  #   - '--add-cloudsql-instances'
+  #   - 'my-kubernetes-project-393103:us-central1:plum-instance'  # Replace with your Cloud SQL instance details
+  #   - '--set-env-vars=DATABASE_URL=$DB_URL'
 
 # This ensures the image is available in Cloud Build's cache for faster builds
 images:
