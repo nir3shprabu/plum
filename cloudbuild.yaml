@@ -15,6 +15,9 @@ steps:
   # Docker Push to GCR
   - name: gcr.io/cloud-builders/docker
     args:
+    - '-c'
+    - |
+      apt-get update && apt-get install -y jq
       - push
       - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
     id: Docker Push
