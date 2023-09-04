@@ -1,5 +1,5 @@
 [plum]
-url = nireshprabu.online
+url = http://nireshprabu.online
 
 [database]
 backend = PostgreSQL13 

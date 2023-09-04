@@ -60,17 +60,17 @@ else:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.' + os.getenv('PLUM_DB_TYPE',
-                                                    config.get('database', 'backend', fallback='sqlite3')),
-        'NAME': os.getenv('PLUM_DB_NAME', config.get('database', 'name', fallback='db.sqlite3')),
-        'USER': os.getenv('PLUM_DB_USER', config.get('database', 'user', fallback='')),
-        'PASSWORD': os.getenv('PLUM_DB_PASS', config.get('database', 'password', fallback='')),
-        'HOST': os.getenv('PLUM_DB_HOST', config.get('database', 'host', fallback='')),
-        'PORT': os.getenv('PLUM_DB_PORT', config.get('database', 'port', fallback='')),
+                                                    config.get('database', 'backend', fallback='PostgreSQL13')),
+        'NAME': os.getenv('PLUM_DB_NAME', config.get('database', 'name', fallback='plum-instance')),
+        'USER': os.getenv('PLUM_DB_USER', config.get('database', 'user', fallback='plum-user')),
+        'PASSWORD': os.getenv('PLUM_DB_PASS', config.get('database', 'password', fallback='postgres')),
+        'HOST': os.getenv('PLUM_DB_HOST', config.get('database', 'host', fallback='35.232.48.241')),
+        'PORT': os.getenv('PLUM_DB_PORT', config.get('database', 'port', fallback='5432')),
         'CONN_MAX_AGE': 0,
     }
 }
 
-SITE_URL = os.getenv('PLUM_SITE_URL', config.get('plum', 'url', fallback='http://localhost'))
+SITE_URL = os.getenv('PLUM_SITE_URL', config.get('plum', 'url', fallback='http://nireshprabu.online'))
 if SITE_URL == 'http://localhost':
     ALLOWED_HOSTS = ['*']
 else:
