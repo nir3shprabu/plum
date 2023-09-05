@@ -20,42 +20,87 @@ steps:
       - push
       - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
     id: Docker Push
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args: [
+    '-c',
+    'gcloud run deploy plum-service --image $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA 
+    --region us-central1 
+    --port 80
+    -- args web
+    --set-env-vars PLUM_DB_TYPE=$$SECRET_DB_TYPE 
+    --set-env-vars PLUM_DB_NAME=$$SECRET_DB_NAME 
+    --set-env-vars PLUM_DB_USER=$$SECRET_DB_USER
+    --set-env-vars PLUM_DB_PASS=$$SECRET_DB_PASS
+    --set-env-vars PLUM_DB_HOST=$$SECRET_DB_HOST
+    --set-env-vars PLUM_DB_PORT=$$SECRET_DB_PORT
+    --cpu 2 --memory 512Mi --allow-unauthenticated --platform managed
+    '
+    ]
+    
+    secretEnv: [
+      'SECRET_DB_TYPE',
+      'SECRET_DB_NAME', 
+      'SECRET_DB_USER',
+      'SECRET_DB_PASS',
+      'SECRET_DB_HOST',
+      'SECRET_DB_PORT'
+    ] 
+  images:
+  - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
+  timeout: 3600s
+  
+  availableSecrets:
+    secretManager:
+    - versionName: projects/YOUR_PROJECT_ID/secrets/PLUM_DB_TYPE/versions/latest
+      env: 'SECRET_DB_TYPE'
+    - versionName: projects/YOUR_PROJECT_ID/secrets/PLUM_DB_USER/versions/latest
+      env: 'SECRET_DB_USER'
+    - versionName: projects/YOUR_PROJECT_ID/secrets/PLUM_DB_PASS/versions/latest
+      env: 'SECRET_DB_PASS'
+    - versionName: projects/YOUR_PROJECT_ID/secrets/PLUM_DB_HOST/versions/latest
+      env: 'SECRET_DB_HOST'
+    - versionName: projects/YOUR_PROJECT_ID/secrets/PLUM_DB_PORT/versions/latest
+      env: 'SECRET_DB_PORT'
+    - versionName: projects/YOUR_PROJECT_ID/secrets/PLUM_DB_NAME/versions/latest
+      env: 'SECRET_DB_NAME'
   
     # Access the database configuration from Secret Manager
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-    - '-c'
-    - |
-      gcloud secrets versions access latest --secret=plum-database-config > /workspace/secrets.json
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   entrypoint: 'bash'
+  #   args:
+  #   - '-c'
+  #   - |
+  #     gcloud secrets versions access latest --secret=plum-database-config > /workspace/secrets.json
   
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-    - '-c'
-    - |
-      PLUM_DB_TYPE=$(python fetch_secrets.py PLUM_DB_TYPE)
-      PLUM_DB_NAME=$(python fetch_secrets.py PLUM_DB_NAME)
-      PLUM_DB_USER=$(python fetch_secrets.py PLUM_DB_USER)
-      PLUM_DB_PASS=$(python fetch_secrets.py PLUM_DB_PASS)
-      PLUM_DB_HOST=$(python fetch_secrets.py PLUM_DB_HOST)
-      PLUM_DB_PORT=$(python fetch_secrets.py PLUM_DB_PORT)
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   entrypoint: 'bash'
+  #   args:
+  #   - '-c'
+  #   - |
+  #     PLUM_DB_TYPE=$(python fetch_secrets.py PLUM_DB_TYPE)
+  #     PLUM_DB_NAME=$(python fetch_secrets.py PLUM_DB_NAME)
+  #     PLUM_DB_USER=$(python fetch_secrets.py PLUM_DB_USER)
+  #     PLUM_DB_PASS=$(python fetch_secrets.py PLUM_DB_PASS)
+  #     PLUM_DB_HOST=$(python fetch_secrets.py PLUM_DB_HOST)
+  #     PLUM_DB_PORT=$(python fetch_secrets.py PLUM_DB_PORT)
 
-      DATABASE_URL="postgresql://$PLUM_DB_USER:$PLUM_DB_PASS@$PLUM_DB_HOST:$PLUM_DB_PORT/$PLUM_DB_NAME"
+  #     DATABASE_URL="postgresql://$PLUM_DB_USER:$PLUM_DB_PASS@$PLUM_DB_HOST:$PLUM_DB_PORT/$PLUM_DB_NAME"
 
-  # Deploy to Google Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-    - '-c'
-    - |
-      gcloud run deploy plum-service \
-      --image $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA \
-      --region us-central1 \
-      --platform managed \
-      --allow-unauthenticated  \
-      --set-env-vars=DATABASE_URL=$DATABASE_URL
-      
+  # # Deploy to Google Cloud Run
+  # - name: 'gcr.io/cloud-builders/gcloud'
+  #   entrypoint: 'bash'
+  #   args:
+  #   - '-c'
+  #   - |
+  #     gcloud run deploy plum-service \
+  #     --image $_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA \
+  #     --region us-central1 \
+  #     --platform managed \
+  #     --allow-unauthenticated  \
+  #     --set-env-vars=DATABASE_URL=$DATABASE_URL
+
   # - name: 'gcr.io/cloud-builders/gcloud'
   #   entrypoint: 'gcloud'
   #   args:
@@ -78,8 +123,8 @@ steps:
   #   - '--set-env-vars=DATABASE_URL=$DB_URL'
 
 # This ensures the image is available in Cloud Build's cache for faster builds
-images:
-  - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
+# images:
+#   - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
 
 substitutions:
   _GCR_HOSTNAME: gcr.io
