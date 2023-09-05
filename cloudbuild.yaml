@@ -2,24 +2,24 @@ steps:
 
   # Docker Build and Tag to GCR
   - name: 'gcr.io/cloud-builders/docker'
-    args: 
-      - build
-      - '--no-cache'
-      - '-t'
-      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
-      - .
-      - '-f'    
-      - Dockerfile
-    id: Docker Build
+    args: ['build', '-t', '$_GCR_HOSTNAME/$PROJECT_ID/$_IMAGE_NAME:$SHORT_SHA', '.']
+    #   - build
+    #   - '--no-cache'
+    #   - '-t'
+    #   - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
+    #   - .
+    #   - '-f'    
+    #   - Dockerfile
+    # id: Docker Build
 
   # Docker Push to GCR
   - name: gcr.io/cloud-builders/docker
-    args:
-    - '-c'
-    - |
-      - push
-      - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
-    id: Docker Push
+    args: ['push', '$_GCR_HOSTNAME/$PROJECT_ID/$_IMAGE_NAME:$SHORT_SHA']
+    # - '-c'
+    # - |
+    #   - push
+    #   - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
+    # id: Docker Push
 
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
@@ -41,7 +41,7 @@ steps:
     - 'deploy'
     - 'plum-service'  # Replace with the desired Cloud Run service name
     - '--image'
-    - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA' 
+    - '$_GCR_HOSTNAME/$PROJECT_ID/$_IMAGE_NAME:$SHORT_SHA' 
     - '--region'
     - 'us-central1'  # Replace with your desired region
     - '--platform'
@@ -54,6 +54,9 @@ steps:
     - '--add-cloudsql-instances'
     - 'my-kubernetes-project-393103:us-central1:plum-instance'  # Replace with your Cloud SQL instance details
     - '--set-env-vars=PLUM_DB_TYPE=$(cat /workspace/db_type.txt),PLUM_DB_NAME=$(cat /workspace/db_name.txt),PLUM_DB_USER=$(cat /workspace/db_user.txt),PLUM_DB_PASS=$(cat /workspace/db_pass.txt),PLUM_DB_HOST=$(cat /workspace/db_host.txt),PLUM_DB_PORT=$(cat /workspace/db_port.txt)'
+
+images:
+  - '$_GCR_HOSTNAME/$PROJECT_ID/$_IMAGE_NAME:$SHORT_SHA'
 
 substitutions:
   _GCR_HOSTNAME: gcr.io
