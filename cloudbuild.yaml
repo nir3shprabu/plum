@@ -39,18 +39,10 @@ steps:
     '
     ]
     
-    secretEnv: [
-      'SECRET_DB_TYPE'
-      # 'SECRET_DB_NAME', 
-      # 'SECRET_DB_USER',
-      # 'SECRET_DB_PASS',
-      # 'SECRET_DB_HOST',
-      # 'SECRET_DB_PORT'
-    ] 
+    secretEnv: ['SECRET_DB_TYPE', 'SECRET_DB_NAME', 'SECRET_DB_USER', 'SECRET_DB_PASS', 'SECRET_DB_HOST', 'SECRET_DB_PORT'] 
   # images:
   # - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_IMAGE_NAME:$SHORT_SHA'
   # timeout: 3600s
-  
   availableSecrets:
     secretManager:
     - versionName: projects/$PROJECT_ID/secrets/PLUM_DB_TYPE/versions/latest
