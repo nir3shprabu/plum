@@ -32,6 +32,11 @@ steps:
       gcloud secrets versions access latest --secret=PLUM_DB_PASS > /workspace/db_pass.txt
       gcloud secrets versions access latest --secret=PLUM_DB_HOST > /workspace/db_host.txt
       gcloud secrets versions access latest --secret=PLUM_DB_PORT > /workspace/db_port.txt
+      gcloud secrets versions access latest --secret=PLUM_MAIL_FROM > /workspace/mail_from.txt
+      gcloud secrets versions access latest --secret=PLUM_MAIL_HOST > /workspace/mail_host.txt
+      gcloud secrets versions access latest --secret=PLUM_MAIL_PORT > /workspace/mail_port.txt
+      gcloud secrets versions access latest --secret=PLUM_MAIL_USER > /workspace/mail_user.txt
+      gcloud secrets versions access latest --secret=PLUM_MAIL_PASSWORD > /workspace/mail_pass.txt
   
     # Deploy to Cloud Run using the secrets
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -51,6 +56,8 @@ steps:
     - '80'
     - '--args'
     - 'web'
+    - '--role'
+    - 'roles/secretmanager.secretAccessor'
     - '--add-cloudsql-instances'
     - 'my-kubernetes-project-393103:us-central1:plum-instance'  # Replace with your Cloud SQL instance details
     - '--set-env-vars=PLUM_DB_TYPE=$(cat /workspace/db_type.txt),PLUM_DB_NAME=$(cat /workspace/db_name.txt),PLUM_DB_USER=$(cat /workspace/db_user.txt),PLUM_DB_PASS=$(cat /workspace/db_pass.txt),PLUM_DB_HOST=$(cat /workspace/db_host.txt),PLUM_DB_PORT=$(cat /workspace/db_port.txt)'
