@@ -56,6 +56,8 @@ steps:
     - '80'
     - '--args'
     - 'web'
+    - '--service-account'
+    - 'cloud-run-sa@my-kubernetes-project-393103.iam.gserviceaccount.com'
     # - '--role'
     # - 'roles/secretmanager.secretAccessor'
     - '--add-cloudsql-instances'
